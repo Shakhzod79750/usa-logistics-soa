@@ -1,0 +1,95 @@
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "4001:4001"
+    environment:
+      - PORT=4001
+      - JWT_SECRET=super-secret-shared-key-change-in-prod
+      - JWT_EXPIRES_IN=8h
+      - DB_PATH=/app/data/auth.db
+      - LOG_LEVEL=info
+    volumes:
+      - auth_data:/app/data
+    networks:
+      - logistics-net
+    restart: unless-stopped
+
+  warehouse-service:
+    build: ./warehouse-service
+    container_name: warehouse-service
+    ports:
+      - "4004:4004"
+    environment:
+      - PORT=4004
+      - JWT_SECRET=super-secret-shared-key-change-in-prod
+      - DATABASE_URL=sqlite:////app/data/warehouse.db
+      - LOG_LEVEL=INFO
+    volumes:
+      - warehouse_data:/app/data
+    networks:
+      - logistics-net
+    restart: unless-stopped
+
+  shipment-service:
+    build: ./shipment-service
+    container_name: shipment-service
+    ports:
+      - "4002:4002"
+    environment:
+      - PORT=4002
+      - JWT_SECRET=super-secret-shared-key-change-in-prod
+      - DATABASE_URL=sqlite:////app/data/shipments.db
+      - WAREHOUSE_SERVICE_URL=http://warehouse-service:4004
+      - LOG_LEVEL=INFO
+    volumes:
+      - shipment_data:/app/data
+    depends_on:
+      - warehouse-service
+    networks:
+      - logistics-net
+    restart: unless-stopped
+
+  tracking-service:
+    build: ./tracking-service
+    container_name: tracking-service
+    ports:
+      - "4003:4003"
+    environment:
+      - PORT=4003
+      - JWT_SECRET=super-secret-shared-key-change-in-prod
+      - DB_PATH=/app/data/tracking.db
+      - SHIPMENT_SERVICE_URL=http://shipment-service:4002
+      - LOG_LEVEL=info
+    volumes:
+      - tracking_data:/app/data
+    depends_on:
+      - shipment-service
+    networks:
+      - logistics-net
+    restart: unless-stopped
+
+  web-ui:
+    build: ./web-ui
+    container_name: web-ui
+    ports:
+      - "3000:80"
+    depends_on:
+      - auth-service
+      - shipment-service
+      - tracking-service
+      - warehouse-service
+    networks:
+      - logistics-net
+    restart: unless-stopped
+
+networks:
+  logistics-net:
+    driver: bridge
+
+volumes:
+  auth_data:
+  warehouse_data:
+  shipment_data:
+  tracking_data:

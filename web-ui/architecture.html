@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="js/theme.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Architecture — USA Logistics Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .arch-diagram-card .trace-diagram { width: 100%; max-width: 560px; height: auto; margin: 10px auto 0; display: block; }
+  .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .health-card { background: var(--panel); border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 16px 18px; }
+  .health-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .health-name { font-family: var(--font-display); font-size: 14px; letter-spacing: 0.02em; }
+  .health-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); }
+  .health-dot.up { background: var(--success); box-shadow: 0 0 8px rgba(52,211,153,0.6); }
+  .health-dot.down { background: var(--danger); }
+  .health-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-faint); }
+  .health-url { color: var(--text-muted); }
+  .arch-log-full .trace-log { max-height: 480px; }
+  .decision-card { border-left: 3px solid var(--brand); }
+  .decision-card h4 { font-size: 13px; color: var(--text); margin-bottom: 6px; text-transform: none; }
+  .decision-card p { font-size: 12.5px; color: var(--text-muted); line-height: 1.6; margin: 0; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-slot"></div>
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-eyebrow">Service-Oriented Architecture</div>
+        <h1>System Architecture</h1>
+      </div>
+      <div class="topbar-actions"><div id="theme-toggle-slot"></div>
+        <div id="trace-toggle-slot"></div></div>
+    </div>
+    <div class="content" style="max-width:100%;">
+
+      <div class="card mb-16">
+        <div class="card-header"><span class="card-title">Service Health</span><button class="btn btn-ghost btn-sm" id="refreshHealthBtn">Refresh</button></div>
+        <div class="health-grid" id="healthGrid"></div>
+      </div>
+
+      <div class="flex gap-12" style="align-items:flex-start; flex-wrap:wrap;">
+        <div class="card arch-diagram-card" style="flex:1.1; min-width:380px;">
+          <div class="card-header"><span class="card-title">Live Call Graph</span></div>
+          <div id="archDiagramWrap"></div>
+          <div class="flex gap-12 mt-16" style="flex-wrap:wrap; font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">
+            <span class="flex gap-8" style="align-items:center;"><span style="width:9px;height:9px;border-radius:2px;background:var(--node-color);display:inline-block;"></span>Node.js / Express</span>
+            <span class="flex gap-8" style="align-items:center;"><span style="width:9px;height:9px;border-radius:2px;background:var(--py-color);display:inline-block;"></span>Python / FastAPI</span>
+            <span class="flex gap-8" style="align-items:center;"><span style="width:14px;border-top:2px dashed var(--text-faint);display:inline-block;"></span>Server-side inter-service call</span>
+          </div>
+          <p class="text-muted" style="font-size:12px; line-height:1.6; margin-top:14px;">
+            Solid lines are calls this browser makes directly. Dashed lines (Shipment ↔ Warehouse, Tracking ↔ Shipment)
+            are real server-side calls one backend makes to another — reported back to this UI by the service itself
+            and animated here as they actually happen. Try creating a shipment or logging a tracking event to see them fire.
+          </p>
+        </div>
+
+        <div class="card arch-log-full" style="flex:1; min-width:320px;">
+          <div class="card-header">
+            <span class="card-title">Full Call Log</span>
+            <button class="btn btn-ghost btn-sm" id="archClearLogBtn">Clear</button>
+          </div>
+          <div class="trace-log" id="archLog" style="padding:0;">
+            <div class="trace-empty">No calls yet this session. Every request from this page — and any other open page — appears here live.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-16">
+        <div class="card-header"><span class="card-title">Key Architectural Decisions</span></div>
+        <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px,1fr));">
+          <div class="card decision-card"><h4>SOA over EDA</h4><p>Core workflows (create shipment, assign driver) need an immediate success/failure answer, so synchronous REST fits better than an event broker at this scale.</p></div>
+          <div class="card decision-card"><h4>Database per service</h4><p>Each service owns an isolated SQLite database. No service reads another's database directly — every cross-service read goes through a real REST call, like the ones you can watch above.</p></div>
+          <div class="card decision-card"><h4>Stateless JWT verification</h4><p>Every service verifies JWTs locally with a shared secret instead of calling Auth Service per request — avoiding a central bottleneck, at the cost of instant token revocation.</p></div>
+          <div class="card decision-card"><h4>Fail-fast on downstream failure</h4><p>If a required service call fails (e.g. Warehouse Service is down), the caller aborts with a clean error rather than writing a partial record.</p></div>
+        </div>
+      </div>
+
+      <div class="card mt-16">
+        <div class="card-header"><span class="card-title">API Documentation</span></div>
+        <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px,1fr));">
+          <a class="btn btn-ghost btn-block" target="_blank" href="" data-swagger="AUTH_BASE">Auth Service /docs ↗</a>
+          <a class="btn btn-ghost btn-block" target="_blank" href="" data-swagger="SHIPMENT_BASE">Shipment Service /docs ↗</a>
+          <a class="btn btn-ghost btn-block" target="_blank" href="" data-swagger="TRACKING_BASE">Tracking Service /docs ↗</a>
+          <a class="btn btn-ghost btn-block" target="_blank" href="" data-swagger="WAREHOUSE_BASE">Warehouse Service /docs ↗</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/trace-panel.js"></script>
+<script src="js/page-architecture.js"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="js/theme.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Users — USA Logistics Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-slot"></div>
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-eyebrow"><span class="svc-tag node">Node.js · Express</span></div>
+        <h1>Users</h1>
+      </div>
+      <div class="topbar-actions"><div id="theme-toggle-slot"></div>
+        <div id="trace-toggle-slot"></div></div>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th></th></tr></thead>
+            <tbody id="userBody"><tr><td colspan="6" class="empty-row">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="editModalBackdrop" style="display:none;">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Edit User</span><button class="modal-close" id="editModalClose">&times;</button></div>
+    <form id="editForm">
+      <div class="field"><label>Full Name</label><input id="editName" required /></div>
+      <div class="field">
+        <label>Role</label>
+        <select id="editRole">
+          <option value="customer">customer</option>
+          <option value="driver">driver</option>
+          <option value="dispatcher">dispatcher</option>
+          <option value="admin">admin</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="editCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="editSubmitBtn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="resetPwModalBackdrop" style="display:none;">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Reset Password</span><button class="modal-close" id="resetPwModalClose">&times;</button></div>
+    <p class="text-muted" style="font-size:12.5px; margin-top:-8px;" id="resetPwUserLabel"></p>
+    <form id="resetPwForm">
+      <div class="field">
+        <label>New Password</label>
+        <input id="resetPwValue" type="password" minlength="8" required placeholder="At least 8 characters" />
+        <div class="field-hint">Must be at least 8 characters. Share this with the user through a secure channel outside this app.</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="resetPwCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="resetPwSubmitBtn">Reset Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/trace-panel.js"></script>
+<script src="js/page-users.js"></script>
+</body>
+</html>

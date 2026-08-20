@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="js/theme.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settings — USA Logistics Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-slot"></div>
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-eyebrow">Configuration Management</div>
+        <h1>Settings</h1>
+      </div>
+      <div class="topbar-actions"><div id="theme-toggle-slot"></div>
+        <div id="trace-toggle-slot"></div></div>
+    </div>
+    <div class="content">
+
+      <div class="card mb-16">
+        <div class="card-header"><span class="card-title">Service Endpoints</span></div>
+        <p class="text-muted" style="font-size:12.5px; margin-top:-6px; margin-bottom:16px;">
+          Each service's base URL is independent configuration, per service, per the SOA design — change these here if your Docker/host setup uses non-default ports without needing to touch any service's code.
+        </p>
+        <div class="field-row">
+          <div class="field"><label>Auth Service <span class="svc-tag node" style="margin-left:6px;">Node.js</span></label><input id="cfgAuth" /></div>
+          <div class="field"><label>Tracking Service <span class="svc-tag node" style="margin-left:6px;">Node.js</span></label><input id="cfgTracking" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Shipment Service <span class="svc-tag py" style="margin-left:6px;">Python</span></label><input id="cfgShipment" /></div>
+          <div class="field"><label>Warehouse Service <span class="svc-tag py" style="margin-left:6px;">Python</span></label><input id="cfgWarehouse" /></div>
+        </div>
+        <div class="flex gap-8 mt-16">
+          <button class="btn btn-primary" id="saveConfigBtn">Save &amp; Reload</button>
+          <button class="btn btn-ghost" id="resetConfigBtn">Reset to Defaults</button>
+        </div>
+      </div>
+
+      <div class="card mb-16">
+        <div class="card-header"><span class="card-title">Appearance</span></div>
+        <div class="flex-between">
+          <div>
+            <div style="font-size:13px; color:var(--text); font-weight:600;">Theme</div>
+            <div class="text-faint" style="font-size:12px; margin-top:2px;">Applies instantly across every page, saved to this browser.</div>
+          </div>
+          <button class="btn btn-ghost" id="settingsThemeToggle"></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Session</span></div>
+        <div class="table-wrap">
+          <table>
+            <tbody id="sessionTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/trace-panel.js"></script>
+<script src="js/page-settings.js"></script>
+</body>
+</html>

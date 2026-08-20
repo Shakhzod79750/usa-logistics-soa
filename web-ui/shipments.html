@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="js/theme.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shipments — USA Logistics Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-slot"></div>
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-eyebrow"><span class="svc-tag py">Python · FastAPI</span></div>
+        <h1>Shipments</h1>
+      </div>
+      <div class="topbar-actions">
+        <div id="theme-toggle-slot"></div>
+        <div id="trace-toggle-slot"></div>
+        <button class="btn btn-primary" id="newShipmentBtn">+ New Shipment</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <div class="card" style="margin-bottom:16px; border-left: 3px solid var(--py-color);">
+        <p style="margin:0; font-size:12.5px; color: var(--text-muted); line-height:1.6;">
+          Creating a shipment triggers a <b style="color:var(--text)">live server-side call from Shipment Service to Warehouse Service</b>
+          to validate the origin warehouse before the shipment is saved. Open <span class="mono" style="color:var(--brand)">Live Network Trace</span> above and watch it happen.
+        </p>
+      </div>
+
+      <div class="card mb-16">
+        <div class="flex gap-12" style="flex-wrap:wrap; align-items:center;">
+          <input id="searchInput" placeholder="Search by tracking #, address, or status…" style="flex:1; min-width:220px; padding:9px 11px; background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:13px;" />
+          <select id="statusFilter" style="padding:9px 11px; background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:13px;">
+            <option value="">All Statuses</option>
+            <option value="CREATED">CREATED</option>
+            <option value="ASSIGNED">ASSIGNED</option>
+            <option value="IN_TRANSIT">IN_TRANSIT</option>
+            <option value="DELIVERED">DELIVERED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="exportCsvBtn">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tracking #</th><th>Status</th><th>Customer</th><th>Driver</th><th>Origin → Destination</th><th>Weight</th><th></th></tr></thead>
+            <tbody id="shipmentBody"><tr><td colspan="7" class="empty-row">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Shipment Modal -->
+<div class="modal-backdrop" id="shModalBackdrop" style="display:none;">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header"><span class="modal-title">New Shipment</span><button class="modal-close" id="shModalClose">&times;</button></div>
+    <form id="shForm">
+      <div class="field-row">
+        <div class="field"><label>Customer User ID</label><input id="shCustomerId" type="number" required placeholder="4" /></div>
+        <div class="field"><label>Origin Warehouse</label><select id="shWarehouseId" required></select></div>
+      </div>
+      <div class="field"><label>Origin Address</label><input id="shOrigin" required placeholder="100 Logistics Way, Phoenix, AZ" /></div>
+      <div class="field"><label>Destination Address</label><input id="shDest" required placeholder="22 Market St, Austin, TX" /></div>
+      <div class="field"><label>Item Description</label><input id="shItemDesc" required placeholder="Electronics — 1x 55-inch LED TV" /></div>
+      <div class="field"><label>Weight (kg)</label><input id="shWeight" type="number" step="0.1" required placeholder="12.5" /></div>
+      <div class="field-hint" style="margin-bottom:14px;">Tip: use a Customer User ID from the <a href="users.html" style="color:var(--brand)">Users</a> page (admin only), or your own ID if you're signed in as a customer.</div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="shCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="shSubmitBtn">Create Shipment</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Manage Shipment Modal -->
+<div class="modal-backdrop" id="mgModalBackdrop" style="display:none;">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Update Shipment</span><button class="modal-close" id="mgModalClose">&times;</button></div>
+    <form id="mgForm">
+      <div class="field"><label>Assign Driver (User ID)</label><input id="mgDriverId" type="number" placeholder="3" /></div>
+      <div class="field">
+        <label>Status</label>
+        <select id="mgStatus">
+          <option value="">— leave unchanged —</option>
+          <option value="CREATED">CREATED</option>
+          <option value="ASSIGNED">ASSIGNED</option>
+          <option value="IN_TRANSIT">IN_TRANSIT</option>
+          <option value="DELIVERED">DELIVERED</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="mgCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="mgSubmitBtn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/trace-panel.js"></script>
+<script src="js/page-shipments.js"></script>
+</body>
+</html>

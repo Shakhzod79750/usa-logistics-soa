@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="js/theme.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Warehouses — USA Logistics Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-slot"></div>
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-eyebrow"><span class="svc-tag py">Python · FastAPI</span></div>
+        <h1>Warehouses</h1>
+      </div>
+      <div class="topbar-actions">
+        <div id="theme-toggle-slot"></div>
+        <div id="trace-toggle-slot"></div>
+        <button class="btn btn-primary" id="newWarehouseBtn">+ New Warehouse</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card mb-16">
+        <input id="searchInput" placeholder="Search by name, address, or state…" style="width:100%; padding:9px 11px; background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:13px;" />
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Address</th><th>State</th><th>Capacity</th><th>Inventory</th><th></th></tr></thead>
+            <tbody id="warehouseBody"><tr><td colspan="7" class="empty-row">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="inventorySection" style="display:none;" class="card mt-16">
+        <div class="card-header">
+          <span class="card-title" id="inventoryTitle">Inventory</span>
+          <button class="btn btn-ghost btn-sm" id="addInventoryBtn">+ Add Item</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>SKU</th><th>Description</th><th>Qty On Hand</th><th>Unit Price</th><th></th></tr></thead>
+            <tbody id="inventoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Warehouse Modal -->
+<div class="modal-backdrop" id="whModalBackdrop" style="display:none;">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">New Warehouse</span><button class="modal-close" id="whModalClose">&times;</button></div>
+    <form id="whForm">
+      <div class="field"><label>Name</label><input id="whName" required placeholder="Phoenix Distribution Center" /></div>
+      <div class="field"><label>Address</label><input id="whAddress" required placeholder="100 Logistics Way" /></div>
+      <div class="field-row">
+        <div class="field"><label>State (2-letter)</label><input id="whState" required maxlength="2" placeholder="AZ" /></div>
+        <div class="field"><label>Capacity (units)</label><input id="whCapacity" type="number" required placeholder="5000" /></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="whCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="whSubmitBtn">Create Warehouse</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add Inventory Modal -->
+<div class="modal-backdrop" id="invModalBackdrop" style="display:none;">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Add Inventory Item</span><button class="modal-close" id="invModalClose">&times;</button></div>
+    <form id="invForm">
+      <div class="field"><label>SKU</label><input id="invSku" required placeholder="SKU-1001" /></div>
+      <div class="field"><label>Description</label><input id="invDesc" required placeholder="55-inch LED TV" /></div>
+      <div class="field-row">
+        <div class="field"><label>Quantity On Hand</label><input id="invQty" type="number" required placeholder="40" /></div>
+        <div class="field"><label>Unit Price ($)</label><input id="invPrice" type="number" step="0.01" required placeholder="349.99" /></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="invCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="invSubmitBtn">Add Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/trace-panel.js"></script>
+<script src="js/page-warehouses.js"></script>
+</body>
+</html>

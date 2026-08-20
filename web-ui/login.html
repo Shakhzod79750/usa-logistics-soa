@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="js/theme.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign In — USA Logistics Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body.auth-body {
+    display: flex; min-height: 100vh; align-items: stretch;
+  }
+  .auth-visual {
+    flex: 1.1; background: var(--bg-raised);
+    border-right: 1px solid var(--border-soft);
+    display: flex; flex-direction: column;
+    padding: 56px 60px 0; position: relative; overflow: hidden;
+  }
+  .auth-visual::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--border-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+    background-size: 34px 34px;
+    opacity: 0.35;
+  }
+  .auth-visual-content { position: relative; z-index: 1; max-width: 420px; flex: 0 0 auto; }
+  /* Truck illustration flows normally below the text and is pushed to the
+     bottom of the panel via margin-top:auto — it can never overlap the
+     text above it, regardless of viewport height or content length. */
+  .auth-truck-scene {
+    position: relative; z-index: 1; margin-top: auto;
+    padding-top: 30px; opacity: 0.55; pointer-events: none;
+    max-height: 190px; overflow: hidden;
+  }
+  .truck-svg { width: 100%; height: 160px; display: block; }
+  @media (max-height: 720px), (max-width: 980px) { .auth-truck-scene { display: none; } }
+  .auth-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--brand); text-transform: uppercase; margin-bottom: 14px; }
+  .auth-visual h1 { font-size: 36px; line-height: 1.15; margin-bottom: 18px; color: var(--text); }
+  .auth-visual p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 26px; }
+  .stack-legend { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
+  .stack-row { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+  .stack-swatch { width: 9px; height: 9px; border-radius: 2px; }
+  .auth-panel {
+    flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px;
+  }
+  .auth-card { width: 100%; max-width: 380px; }
+  .auth-card .brand-mark { margin-bottom: 30px; }
+  .tab-switch { display: flex; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 22px; overflow: hidden; }
+  .tab-switch button {
+    flex: 1; padding: 10px; background: var(--panel); border: none; color: var(--text-muted);
+    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .tab-switch button.active { background: var(--brand); color: #14100C; }
+  .demo-note {
+    margin-top: 22px; padding: 12px 14px; background: var(--panel);
+    border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+    font-size: 11.5px; color: var(--text-faint); line-height: 1.6;
+  }
+  .demo-note b { color: var(--text-muted); }
+</style>
+</head>
+<body class="auth-body">
+
+  <div class="auth-visual">
+    <div class="auth-visual-content">
+      <div class="brand-mark" style="margin-bottom:22px;"><span class="crate"></span><span class="brand-title">USA Logistics</span></div>
+      <div class="auth-eyebrow">SOA Reference Implementation</div>
+      <h1>Four services.<br>Two languages.<br>One dispatch console.</h1>
+      <p>This console talks directly to all four backend services from your browser — Auth and Tracking run on Node.js/Express, Shipment and Warehouse run on Python/FastAPI — over a shared REST + JWT contract. Every call is visible live in the Network Trace panel once you're signed in.</p>
+      <div class="stack-legend">
+        <div class="stack-row"><span class="stack-swatch" style="background:var(--node-color)"></span> Auth Service &amp; Tracking Service — Node.js / Express</div>
+        <div class="stack-row"><span class="stack-swatch" style="background:var(--py-color)"></span> Shipment Service &amp; Warehouse Service — Python / FastAPI</div>
+      </div>
+    </div>
+    <div class="auth-truck-scene" aria-hidden="true">
+      <svg viewBox="0 0 640 220" class="truck-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+        <!-- highway -->
+        <line x1="0" y1="188" x2="640" y2="188" stroke="var(--border)" stroke-width="2"/>
+        <g stroke="var(--text-faint)" stroke-width="3" stroke-dasharray="18 14" opacity="0.5">
+          <line x1="0" y1="204" x2="640" y2="204"/>
+        </g>
+        <!-- distant containers stack -->
+        <g opacity="0.55">
+          <rect x="40" y="128" width="60" height="34" rx="2" fill="none" stroke="var(--py-color)" stroke-width="2"/>
+          <rect x="105" y="140" width="60" height="22" rx="2" fill="none" stroke="var(--node-color)" stroke-width="2"/>
+          <rect x="40" y="160" width="125" height="4" fill="var(--border)"/>
+        </g>
+        <!-- semi truck -->
+        <g transform="translate(230,90)">
+          <!-- trailer -->
+          <rect x="60" y="10" width="230" height="70" rx="4" fill="none" stroke="var(--text-muted)" stroke-width="3"/>
+          <line x1="95" y1="10" x2="95" y2="80" stroke="var(--border)" stroke-width="2"/>
+          <line x1="150" y1="10" x2="150" y2="80" stroke="var(--border)" stroke-width="2"/>
+          <line x1="205" y1="10" x2="205" y2="80" stroke="var(--border)" stroke-width="2"/>
+          <line x1="260" y1="10" x2="260" y2="80" stroke="var(--border)" stroke-width="2"/>
+          <!-- cab -->
+          <path d="M60 80 L60 30 L20 30 L2 55 L2 80 Z" fill="none" stroke="var(--brand)" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="10" y="38" width="24" height="18" rx="2" fill="none" stroke="var(--brand)" stroke-width="2"/>
+          <!-- wheels -->
+          <circle cx="30" cy="88" r="14" fill="none" stroke="var(--text-muted)" stroke-width="3"/>
+          <circle cx="30" cy="88" r="4" fill="var(--text-muted)"/>
+          <circle cx="110" cy="88" r="14" fill="none" stroke="var(--text-muted)" stroke-width="3"/>
+          <circle cx="110" cy="88" r="4" fill="var(--text-muted)"/>
+          <circle cx="260" cy="88" r="14" fill="none" stroke="var(--text-muted)" stroke-width="3"/>
+          <circle cx="260" cy="88" r="4" fill="var(--text-muted)"/>
+          <!-- USA tag on trailer -->
+          <text x="175" y="52" text-anchor="middle" font-family="var(--font-mono)" font-size="13" fill="var(--text-faint)" letter-spacing="2">USA LOGISTICS</text>
+        </g>
+        <!-- location pin -->
+        <g transform="translate(560,60)" opacity="0.7">
+          <path d="M0 0 C11 0 20 9 20 20 C20 34 0 55 0 55 C0 55 -20 34 -20 20 C-20 9 -11 0 0 0 Z" fill="none" stroke="var(--danger)" stroke-width="2.5"/>
+          <circle cx="0" cy="20" r="6" fill="var(--danger)"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="auth-panel">
+    <div class="auth-card">
+      <div class="tab-switch">
+        <button id="tabLogin" class="active">Sign In</button>
+        <button id="tabRegister">Register</button>
+      </div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" type="email" placeholder="admin@usa-logistics.com" required />
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn">Sign In</button>
+        <p style="text-align:center; margin-top:14px; font-size:11.5px; color:var(--text-faint);">
+          Forgot your password? <a href="#" id="forgotPasswordLink" style="color:var(--brand);">Get help</a>
+        </p>
+      </form>
+
+      <form id="registerForm" style="display:none;">
+        <div class="field">
+          <label for="regName">Full Name</label>
+          <input id="regName" type="text" placeholder="Jane Dispatcher" required />
+        </div>
+        <div class="field">
+          <label for="regEmail">Email</label>
+          <input id="regEmail" type="email" placeholder="jane@usa-logistics.com" required />
+        </div>
+        <div class="field">
+          <label for="regPassword">Password</label>
+          <input id="regPassword" type="password" minlength="8" required placeholder="At least 8 characters" />
+          <div class="field-hint">Must be at least 8 characters.</div>
+        </div>
+        <div class="field">
+          <label for="regRole">Role</label>
+          <select id="regRole" required>
+            <option value="customer">Customer</option>
+            <option value="driver">Driver</option>
+            <option value="dispatcher">Dispatcher</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="regSubmitBtn">Create Account</button>
+      </form>
+
+      <div class="demo-note">
+        <b>First time?</b> Register an <b>Admin</b> account first (needed to create warehouses and manage users), then register a Dispatcher, Driver, and Customer to see role-based access across the console.
+        <br><br>
+        <b>Password resets</b> are handled by an Administrator from the <span class="mono">Users</span> page — this demo has no email/SMS service to power a self-service "forgot password" flow (see the Context Diagram in the architecture doc, where that's marked as a future integration).
+      </div>
+    </div>
+  </div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/page-login.js"></script>
+</body>
+</html>

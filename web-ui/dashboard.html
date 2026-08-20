@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="js/theme.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Overview — USA Logistics Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-slot"></div>
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-eyebrow">Dispatch Console</div>
+        <h1>Overview</h1>
+      </div>
+      <div class="topbar-actions">
+        <div id="theme-toggle-slot"></div>
+        <div id="trace-toggle-slot"></div>
+      </div>
+    </div>
+    <div class="content">
+
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-card"><div class="stat-label">Shipments</div><div class="stat-value skeleton" style="height:34px;width:60px;">&nbsp;</div></div>
+        <div class="stat-card svc-py"><div class="stat-label">Warehouses</div><div class="stat-value skeleton" style="height:34px;width:60px;">&nbsp;</div></div>
+        <div class="stat-card svc-py"><div class="stat-label">Inventory SKUs</div><div class="stat-value skeleton" style="height:34px;width:60px;">&nbsp;</div></div>
+        <div class="stat-card svc-node"><div class="stat-label">In Transit</div><div class="stat-value skeleton" style="height:34px;width:60px;">&nbsp;</div></div>
+      </div>
+
+      <div class="card mb-16">
+        <div class="card-header">
+          <span class="card-title">Recent Shipments</span>
+          <a href="shipments.html" class="btn btn-ghost btn-sm">View All →</a>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tracking #</th><th>Status</th><th>Origin → Destination</th><th>Weight</th><th>Created</th></tr></thead>
+            <tbody id="recentShipmentsBody">
+              <tr><td colspan="5" class="empty-row">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Service Architecture</span><a href="architecture.html" class="btn btn-ghost btn-sm">Full View →</a></div>
+        <p class="text-muted" style="font-size:13px; line-height:1.7; margin: 0;">
+          This console is a client for four independently deployable services: <b class="mono" style="color:var(--node-color)">auth-service</b> and
+          <b class="mono" style="color:var(--node-color)">tracking-service</b> run on Node.js/Express; <b class="mono" style="color:var(--py-color)">shipment-service</b> and
+          <b class="mono" style="color:var(--py-color)">warehouse-service</b> run on Python/FastAPI. Open the <a href="architecture.html" style="color:var(--brand);">Architecture page</a>
+          or click <span class="mono">Live Network Trace</span> above to watch real cross-service, cross-language calls happen as you use the app.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/trace-panel.js"></script>
+<script src="js/page-dashboard.js"></script>
+</body>
+</html>
