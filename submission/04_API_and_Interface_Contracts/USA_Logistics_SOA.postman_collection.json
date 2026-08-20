@@ -1,0 +1,1644 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-usa-logistics-soa-0002",
+    "name": "USA Logistics & Shipment Tracking System (SOA)",
+    "description": "SFWE415 Software Architecture — SOA project, now including the web-ui console (:3000).\n\nRun folders top-to-bottom (0 -> 1 -> 2 -> 3 -> 4 -> 5): each folder’s requests save tokens/IDs into collection variables that later folders reuse.\n\nFolder 0 just confirms the web-ui static server is reachable — the actual UI is meant to be used in a browser at http://localhost:3000, not through Postman. Folders 3 and 4’s create/log-event requests now assert a `trace` array is present in the response, proving the real inter-service calls (Shipment -> Warehouse, Tracking -> Shipment) that also power the web-ui’s live Network Trace panel.\n\nImport the companion environment file or edit the collection variables below if your services run on non-default ports/hosts.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Web UI (Static Console — :3000)",
+      "item": [
+        {
+          "name": "Login Page Reachable",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{webui_base}}/login.html",
+              "host": [
+                "{{webui_base}}"
+              ],
+              "path": [
+                "login.html"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Confirms the nginx-served frontend is up. This is the actual browser UI at http://localhost:3000 — open it in a browser rather than Postman to use it interactively."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Auth Service (Node.js/Express — :4001)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_base}}/health",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base}}/auth/register",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Alice Admin\",\n  \"email\": \"admin@usa-logistics.com\",\n  \"password\": \"AdminPass123!\",\n  \"role\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set(\"admin_id\", data.id);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Dispatcher",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base}}/auth/register",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Dan Dispatcher\",\n  \"email\": \"dispatcher@usa-logistics.com\",\n  \"password\": \"DispatchPass123!\",\n  \"role\": \"dispatcher\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set(\"dispatcher_id\", data.id);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base}}/auth/register",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Dave Driver\",\n  \"email\": \"driver@usa-logistics.com\",\n  \"password\": \"DriverPass123!\",\n  \"role\": \"driver\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set(\"driver_id\", data.id);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base}}/auth/register",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Cathy Customer\",\n  \"email\": \"customer@usa-logistics.com\",\n  \"password\": \"CustomerPass123!\",\n  \"role\": \"customer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set(\"customer_id\", data.id);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login — Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base}}/auth/login",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@usa-logistics.com\",\n  \"password\": \"AdminPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"admin_token\", data.access_token);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login — Dispatcher",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base}}/auth/login",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"dispatcher@usa-logistics.com\",\n  \"password\": \"DispatchPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"dispatcher_token\", data.access_token);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login — Driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base}}/auth/login",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"driver@usa-logistics.com\",\n  \"password\": \"DriverPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"driver_token\", data.access_token);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login — Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base}}/auth/login",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@usa-logistics.com\",\n  \"password\": \"CustomerPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set(\"customer_token\", data.access_token);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_base}}/auth/verify",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "verify"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Users (admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_base}}/auth/users",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "users"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_base}}/auth/users/{{admin_id}}",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "users",
+                "{{admin_id}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base}}/auth/users/{{admin_id}}",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "users",
+                "{{admin_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Alice A. Admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{auth_base}}/auth/users/99",
+              "host": [
+                "{{auth_base}}"
+              ],
+              "path": [
+                "auth",
+                "users",
+                "99"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Intentionally targets a non-existent ID (99) to demonstrate correct 404 error handling."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Warehouse Service (Python/FastAPI — :4004)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{warehouse_base}}/health",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Warehouse",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{warehouse_base}}/warehouses",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "warehouses"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Phoenix Distribution Center\",\n  \"address\": \"100 Logistics Way\",\n  \"state\": \"AZ\",\n  \"capacity_units\": 5000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"warehouse_id\", data.id);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Warehouses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{warehouse_base}}/warehouses",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "warehouses"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Warehouse By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{warehouse_base}}/warehouses/{{warehouse_id}}",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "warehouses",
+                "{{warehouse_id}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Warehouse",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{warehouse_base}}/warehouses/{{warehouse_id}}",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "warehouses",
+                "{{warehouse_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"capacity_units\": 6000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Inventory Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{warehouse_base}}/warehouses/{{warehouse_id}}/inventory",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "warehouses",
+                "{{warehouse_id}}",
+                "inventory"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"SKU-1001\",\n  \"description\": \"55-inch LED TV\",\n  \"quantity_on_hand\": 40,\n  \"unit_price\": 349.99\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set(\"inventory_item_id\", data.id);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Inventory",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{warehouse_base}}/warehouses/{{warehouse_id}}/inventory",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "warehouses",
+                "{{warehouse_id}}",
+                "inventory"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Inventory Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{warehouse_base}}/warehouses/{{warehouse_id}}/inventory/{{inventory_item_id}}",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "warehouses",
+                "{{warehouse_id}}",
+                "inventory",
+                "{{inventory_item_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity_on_hand\": 35\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Inventory Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{warehouse_base}}/warehouses/{{warehouse_id}}/inventory/{{inventory_item_id}}",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "warehouses",
+                "{{warehouse_id}}",
+                "inventory",
+                "{{inventory_item_id}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Shipment Service (Python/FastAPI — :4002)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shipment_base}}/health",
+              "host": [
+                "{{shipment_base}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Shipment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{shipment_base}}/shipments",
+              "host": [
+                "{{shipment_base}}"
+              ],
+              "path": [
+                "shipments"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"{{customer_id}}\",\n  \"origin_warehouse_id\": \"{{warehouse_id}}\",\n  \"origin_address\": \"100 Logistics Way, Phoenix, AZ\",\n  \"destination_address\": \"22 Market St, Austin, TX\",\n  \"item_description\": \"Electronics — 1x 55-inch LED TV\",\n  \"weight_kg\": 12.5,\n  \"items\": [\n    {\n      \"sku\": \"SKU-1001\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Demonstrates the Shipment -> Warehouse Service interoperability call, and the response now includes a `trace` array of the real inter-service calls made (also rendered live in the web-ui’s Network Trace panel)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Has tracking_number\", () => pm.expect(data.tracking_number).to.be.a(\"string\"));",
+                  "pm.test(\"Has trace array\", () => pm.expect(data.trace).to.be.an(\"array\"));",
+                  "pm.collectionVariables.set(\"shipment_id\", data.id);",
+                  "pm.collectionVariables.set(\"tracking_number\", data.tracking_number);",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Shipments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shipment_base}}/shipments",
+              "host": [
+                "{{shipment_base}}"
+              ],
+              "path": [
+                "shipments"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Shipments — filter by status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shipment_base}}/shipments?status_filter=CREATED",
+              "host": [
+                "{{shipment_base}}"
+              ],
+              "path": [
+                "shipments"
+              ],
+              "query": [
+                {
+                  "key": "status_filter",
+                  "value": "CREATED"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shipment By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shipment_base}}/shipments/{{shipment_id}}",
+              "host": [
+                "{{shipment_base}}"
+              ],
+              "path": [
+                "shipments",
+                "{{shipment_id}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customer_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shipment By Tracking Number",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{shipment_base}}/shipments/tracking/{{tracking_number}}",
+              "host": [
+                "{{shipment_base}}"
+              ],
+              "path": [
+                "shipments",
+                "tracking",
+                "{{tracking_number}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{driver_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "This exact call is what the Tracking Service (Node.js) makes to the Shipment Service (Python) to validate a tracking number before logging an event."
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Driver / Update Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{shipment_base}}/shipments/{{shipment_id}}",
+              "host": [
+                "{{shipment_base}}"
+              ],
+              "path": [
+                "shipments",
+                "{{shipment_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driver_id\": \"{{driver_id}}\",\n  \"status\": \"ASSIGNED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{dispatcher_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Tracking Service (Node.js/Express — :4003)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{tracking_base}}/health",
+              "host": [
+                "{{tracking_base}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Log Event — Picked Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tracking_base}}/tracking/events",
+              "host": [
+                "{{tracking_base}}"
+              ],
+              "path": [
+                "tracking",
+                "events"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tracking_number\": \"{{tracking_number}}\",\n  \"event_type\": \"PICKED_UP\",\n  \"latitude\": 33.4484,\n  \"longitude\": -112.074,\n  \"location_label\": \"Phoenix Distribution Center\",\n  \"notes\": \"Package picked up from warehouse dock 3\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{driver_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Demonstrates the Tracking -> Shipment Service interoperability call (Node.js calling Python). Response includes a `trace` array of the real hop."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "(function () {",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Has trace array\", () => pm.expect(data.trace).to.be.an(\"array\"));",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Log Event — In Transit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tracking_base}}/tracking/events",
+              "host": [
+                "{{tracking_base}}"
+              ],
+              "path": [
+                "tracking",
+                "events"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tracking_number\": \"{{tracking_number}}\",\n  \"event_type\": \"IN_TRANSIT\",\n  \"latitude\": 34.0489,\n  \"longitude\": -111.0937,\n  \"location_label\": \"I-17 Northbound\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{driver_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Log Event — Out For Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tracking_base}}/tracking/events",
+              "host": [
+                "{{tracking_base}}"
+              ],
+              "path": [
+                "tracking",
+                "events"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tracking_number\": \"{{tracking_number}}\",\n  \"event_type\": \"OUT_FOR_DELIVERY\",\n  \"latitude\": 30.2672,\n  \"longitude\": -97.7431,\n  \"location_label\": \"Austin, TX Hub\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{driver_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Log Event — Delivered",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{tracking_base}}/tracking/events",
+              "host": [
+                "{{tracking_base}}"
+              ],
+              "path": [
+                "tracking",
+                "events"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tracking_number\": \"{{tracking_number}}\",\n  \"event_type\": \"DELIVERED\",\n  \"location_label\": \"22 Market St, Austin, TX\",\n  \"notes\": \"Left at front door, signed by resident\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{driver_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Full Tracking History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{tracking_base}}/tracking/{{tracking_number}}",
+              "host": [
+                "{{tracking_base}}"
+              ],
+              "path": [
+                "tracking",
+                "{{tracking_number}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customer_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Latest Tracking Event",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{tracking_base}}/tracking/{{tracking_number}}/latest",
+              "host": [
+                "{{tracking_base}}"
+              ],
+              "path": [
+                "tracking",
+                "{{tracking_number}}",
+                "latest"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customer_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Tracking Event (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{tracking_base}}/tracking/events/1",
+              "host": [
+                "{{tracking_base}}"
+              ],
+              "path": [
+                "tracking",
+                "events",
+                "1"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Cleanup",
+      "item": [
+        {
+          "name": "Delete Shipment (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{shipment_base}}/shipments/{{shipment_id}}",
+              "host": [
+                "{{shipment_base}}"
+              ],
+              "path": [
+                "shipments",
+                "{{shipment_id}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Run after Tracking folder — tracking events reference this shipment."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Warehouse (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{warehouse_base}}/warehouses/{{warehouse_id}}",
+              "host": [
+                "{{warehouse_base}}"
+              ],
+              "path": [
+                "warehouses",
+                "{{warehouse_id}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Run last — Shipment folder depends on this warehouse existing."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "webui_base",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "auth_base",
+      "value": "http://localhost:4001",
+      "type": "string"
+    },
+    {
+      "key": "shipment_base",
+      "value": "http://localhost:4002",
+      "type": "string"
+    },
+    {
+      "key": "tracking_base",
+      "value": "http://localhost:4003",
+      "type": "string"
+    },
+    {
+      "key": "warehouse_base",
+      "value": "http://localhost:4004",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "dispatcher_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "driver_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customer_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "dispatcher_id",
+      "value": "2",
+      "type": "string"
+    },
+    {
+      "key": "driver_id",
+      "value": "3",
+      "type": "string"
+    },
+    {
+      "key": "customer_id",
+      "value": "4",
+      "type": "string"
+    },
+    {
+      "key": "warehouse_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "inventory_item_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "shipment_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "tracking_number",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

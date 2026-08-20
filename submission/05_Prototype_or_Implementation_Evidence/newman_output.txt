@@ -1,0 +1,163 @@
+newman
+
+USA Logistics & Shipment Tracking System (SOA)
+
+❏ 0. Web UI (Static Console — :3000)
+↳ Login Page Reachable
+  GET http://localhost:3000/login.html [200 OK, 10.25kB, 47ms]
+
+❏ 1. Auth Service (Node.js/Express — :4001)
+↳ Health Check
+  GET http://localhost:4001/health [200 OK, 307B, 18ms]
+
+↳ Register Admin
+  POST http://localhost:4001/auth/register [201 Created, 355B, 147ms]
+
+↳ Register Dispatcher
+  POST http://localhost:4001/auth/register [201 Created, 368B, 94ms]
+
+↳ Register Driver
+  POST http://localhost:4001/auth/register [201 Created, 357B, 95ms]
+
+↳ Register Customer
+  POST http://localhost:4001/auth/register [201 Created, 364B, 91ms]
+
+↳ Login — Admin
+  POST http://localhost:4001/auth/login [200 OK, 604B, 104ms]
+  ✓  Status is 200
+
+↳ Login — Dispatcher
+  POST http://localhost:4001/auth/login [200 OK, 630B, 89ms]
+  ✓  Status is 200
+
+↳ Login — Driver
+  POST http://localhost:4001/auth/login [200 OK, 608B, 98ms]
+  ✓  Status is 200
+
+↳ Login — Customer
+  POST http://localhost:4001/auth/login [200 OK, 622B, 99ms]
+  ✓  Status is 200
+
+↳ Verify Token
+  GET http://localhost:4001/auth/verify [200 OK, 410B, 7ms]
+
+↳ List Users (admin)
+  GET http://localhost:4001/auth/users [200 OK, 770B, 4ms]
+
+↳ Get User By Id
+  GET http://localhost:4001/auth/users/1 [200 OK, 386B, 4ms]
+
+↳ Update User (admin)
+  PUT http://localhost:4001/auth/users/1 [200 OK, 353B, 6ms]
+
+↳ Delete User (admin)
+  DELETE http://localhost:4001/auth/users/99 [404 Not Found, 325B, 6ms]
+
+❏ 2. Warehouse Service (Python/FastAPI — :4004)
+↳ Health Check
+  GET http://localhost:4004/health [200 OK, 170B, 19ms]
+
+↳ Create Warehouse
+  POST http://localhost:4004/warehouses [201 Created, 256B, 38ms]
+  ✓  Status is 201
+
+↳ List Warehouses
+  GET http://localhost:4004/warehouses [200 OK, 253B, 10ms]
+
+↳ Get Warehouse By Id
+  GET http://localhost:4004/warehouses/1 [200 OK, 251B, 8ms]
+
+↳ Update Warehouse
+  PUT http://localhost:4004/warehouses/1 [200 OK, 251B, 16ms]
+
+↳ Add Inventory Item
+  POST http://localhost:4004/warehouses/1/inventory [201 Created, 246B, 13ms]
+  ✓  Status is 201
+
+↳ List Inventory
+  GET http://localhost:4004/warehouses/1/inventory [200 OK, 243B, 11ms]
+
+↳ Update Inventory Item
+  PUT http://localhost:4004/warehouses/1/inventory/1 [200 OK, 241B, 14ms]
+
+↳ Delete Inventory Item
+  DELETE http://localhost:4004/warehouses/1/inventory/1 [204 No Content, 113B, 11ms]
+
+❏ 3. Shipment Service (Python/FastAPI — :4002)
+↳ Health Check
+  GET http://localhost:4002/health [200 OK, 169B, 20ms]
+
+↳ Create Shipment
+  POST http://localhost:4002/shipments [201 Created, 1.28kB, 108ms]
+  ✓  Status is 201
+  ✓  Has tracking_number
+  ✓  Has trace array
+
+↳ List Shipments
+  GET http://localhost:4002/shipments [200 OK, 515B, 10ms]
+
+↳ List Shipments — filter by status
+  GET http://localhost:4002/shipments?status_filter=CREATED [200 OK, 515B, 11ms]
+
+↳ Get Shipment By Id
+  GET http://localhost:4002/shipments/1 [200 OK, 513B, 12ms]
+
+↳ Get Shipment By Tracking Number
+  GET http://localhost:4002/shipments/tracking/USA-AW6Z1PHZPB [200 OK, 513B, 7ms]
+
+↳ Assign Driver / Update Status
+  PUT http://localhost:4002/shipments/1 [200 OK, 511B, 15ms]
+
+❏ 4. Tracking Service (Node.js/Express — :4003)
+↳ Health Check
+  GET http://localhost:4003/health [200 OK, 311B, 15ms]
+
+↳ Log Event — Picked Up
+  POST http://localhost:4003/tracking/events [201 Created, 1.33kB, 62ms]
+  ✓  Status is 201
+  ✓  Has trace array
+
+↳ Log Event — In Transit
+  POST http://localhost:4003/tracking/events [201 Created, 1.28kB, 13ms]
+
+↳ Log Event — Out For Delivery
+  POST http://localhost:4003/tracking/events [201 Created, 1.29kB, 12ms]
+
+↳ Log Event — Delivered
+  POST http://localhost:4003/tracking/events [201 Created, 1.32kB, 12ms]
+
+↳ Get Full Tracking History
+  GET http://localhost:4003/tracking/USA-AW6Z1PHZPB [200 OK, 1.2kB, 4ms]
+
+↳ Get Latest Tracking Event
+  GET http://localhost:4003/tracking/USA-AW6Z1PHZPB/latest [200 OK, 525B, 4ms]
+
+↳ Delete Tracking Event (admin)
+  DELETE http://localhost:4003/tracking/events/1 [204 No Content, 166B, 8ms]
+
+❏ 5. Cleanup
+↳ Delete Shipment (admin)
+  DELETE http://localhost:4002/shipments/1 [204 No Content, 113B, 11ms]
+
+↳ Delete Warehouse (admin)
+  DELETE http://localhost:4004/warehouses/1 [204 No Content, 113B, 9ms]
+
+┌─────────────────────────┬───────────────────┬──────────────────┐
+│                         │          executed │           failed │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              iterations │                 1 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│                requests │                41 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│            test-scripts │                12 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│      prerequest-scripts │                 0 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              assertions │                11 │                0 │
+├─────────────────────────┴───────────────────┴──────────────────┤
+│ total run duration: 2.2s                                       │
+├────────────────────────────────────────────────────────────────┤
+│ total data received: 22.1kB (approx)                           │
+├────────────────────────────────────────────────────────────────┤
+│ average response time: 33ms [min: 4ms, max: 147ms, s.d.: 38ms] │
+└────────────────────────────────────────────────────────────────┘
